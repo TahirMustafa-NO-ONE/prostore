@@ -1,16 +1,38 @@
-import React, { useState, useEffect } from "react";
-import { cn } from "@/lib/utils";
+'use client';
+
+import React, { useState, useEffect } from 'react';
 
 interface ToastProps {
   message: string;
-  type?: "success" | "error" | "info";
+  type?: 'success' | 'error' | 'info';
   duration?: number;
   onClose: () => void;
 }
 
+const typeConfig = {
+  success: {
+    bg: 'bg-success/10',
+    border: 'border-l-4 border-l-success',
+    text: 'text-success',
+    icon: '✓',
+  },
+  error: {
+    bg: 'bg-destructive/10',
+    border: 'border-l-4 border-l-destructive',
+    text: 'text-destructive',
+    icon: '✕',
+  },
+  info: {
+    bg: 'bg-primary/10',
+    border: 'border-l-4 border-l-primary',
+    text: 'text-primary',
+    icon: 'ℹ',
+  },
+};
+
 export function Toast({
   message,
-  type = "info",
+  type = 'info',
   duration = 3000,
   onClose,
 }: ToastProps) {
@@ -19,20 +41,21 @@ export function Toast({
     return () => clearTimeout(timer);
   }, [duration, onClose]);
 
-  const typeStyles = {
-    success: "bg-green-500",
-    error: "bg-red-500",
-    info: "bg-blue-500",
-  };
+  const config = typeConfig[type];
 
   return (
     <div
-      className={cn(
-        "fixed bottom-4 right-4 text-white px-4 py-3 rounded-lg shadow-lg animate-in fade-in slide-in-from-bottom-4",
-        typeStyles[type]
-      )}
+      className={`
+        fixed bottom-4 right-4 z-50
+        ${config.bg} ${config.border} border border-border
+        rounded-lg px-4 py-3 shadow-lg
+        animate-slide-in
+        flex items-center gap-3
+        text-text-primary font-body text-sm
+      `}
     >
-      {message}
+      <span className={config.text}>{config.icon}</span>
+      <span>{message}</span>
     </div>
   );
 }
@@ -63,19 +86,20 @@ export const useToast = () => {
 
   const addToast = (
     message: string,
-    type: "success" | "error" | "info" = "info"
+    type: 'success' | 'error' | 'info' = 'info'
   ) => {
-    const id = Date.now();
+    const onClose = () => {
+      setToasts((prev) => prev.filter((t) => t.message !== message));
+    };
+    
     setToasts((prev) => [
       ...prev,
       {
         message,
         type,
         duration: 3000,
-        onClose: () => {
-          setToasts((prev) => prev.filter((t) => t.onClose !== onClose));
-        },
-      } as ToastProps,
+        onClose,
+      },
     ]);
   };
 

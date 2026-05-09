@@ -1,13 +1,14 @@
-"use client";
+'use client';
 
-import React, { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { useAuth } from "@/store/auth";
-import { useCart } from "@/store/cart";
-import { Button } from "@/components/ui/Button";
-import { Input } from "@/components/ui/Input";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
-import { formatPrice } from "@/lib/utils";
+import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@/store/auth';
+import { useCart } from '@/store/cart';
+import { Button } from '@/components/ui/Button';
+import { Input } from '@/components/ui/Input';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
+import { formatPrice } from '@/lib/utils';
+import { Lock, Truck } from 'lucide-react';
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -15,23 +16,23 @@ export default function CheckoutPage() {
   const { cart, clearCart } = useCart();
 
   const [formData, setFormData] = useState({
-    street: "",
-    city: "",
-    state: "",
-    zipCode: "",
-    country: "",
-    email: user?.email || "",
+    street: '',
+    city: '',
+    state: '',
+    zipCode: '',
+    country: '',
+    email: user?.email || '',
   });
 
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [error, setError] = useState('');
 
   useEffect(() => {
     if (!user) {
-      router.push("/auth/login");
+      router.push('/auth/login');
     }
     if (cart.items.length === 0) {
-      router.push("/cart");
+      router.push('/cart');
     }
   }, [user, cart, router]);
 
@@ -45,35 +46,35 @@ export default function CheckoutPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
+    setError('');
     setLoading(true);
 
     try {
-      const token = localStorage.getItem("token");
-      const res = await fetch("/api/orders", {
-        method: "POST",
+      const token = localStorage.getItem('token');
+      const res = await fetch('/api/orders', {
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
           items: cart.items,
           shippingAddress: formData,
-          paymentMethod: "card",
+          paymentMethod: 'card',
         }),
       });
 
       const data = await res.json();
 
       if (!res.ok) {
-        setError(data.error || "Checkout failed");
+        setError(data.error || 'Checkout failed');
         return;
       }
 
       clearCart();
       router.push(`/checkout/success?orderId=${data.data.id}`);
     } catch (err) {
-      setError("An error occurred. Please try again.");
+      setError('An error occurred. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -82,39 +83,53 @@ export default function CheckoutPage() {
   const total = cart.total + cart.total * 0.08;
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12">
-      <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-8">Checkout</h1>
+    <div className="min-h-screen bg-background py-12 md:py-16">
+      <div className="container-wide">
+        {/* Header */}
+        <div className="mb-12">
+          <h1 className="font-display text-4xl md:text-5xl font-bold text-text-primary mb-2">
+            Complete Your Purchase
+          </h1>
+          <p className="text-text-secondary font-body">
+            Secure checkout with free shipping on this order
+          </p>
+        </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {/* Checkout Form */}
-          <div className="md:col-span-2">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Form - Left Column */}
+          <div className="lg:col-span-2">
             <Card>
-              <CardHeader>
-                <CardTitle>Shipping Address</CardTitle>
+              <CardHeader className="border-b border-border">
+                <CardTitle className="flex items-center gap-2">
+                  <Truck size={24} className="text-primary" />
+                  Shipping Information
+                </CardTitle>
               </CardHeader>
-              <CardContent>
+              <CardContent className="pt-6">
                 {error && (
-                  <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+                  <div className="mb-6 p-4 bg-destructive/10 border border-destructive/20 rounded-lg text-destructive text-sm">
                     {error}
                   </div>
                 )}
 
-                <form onSubmit={handleSubmit} className="space-y-4">
+                <form onSubmit={handleSubmit} className="space-y-6">
+                  {/* Email */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Email
+                    <label className="block text-sm font-semibold text-text-primary mb-2 font-body">
+                      Email Address
                     </label>
                     <Input
                       type="email"
                       name="email"
                       value={formData.email}
                       readOnly
+                      className="bg-surface-raised/50"
                     />
                   </div>
 
+                  {/* Street Address */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-sm font-semibold text-text-primary mb-2 font-body">
                       Street Address
                     </label>
                     <Input
@@ -122,14 +137,15 @@ export default function CheckoutPage() {
                       name="street"
                       value={formData.street}
                       onChange={handleChange}
-                      placeholder="123 Main St"
+                      placeholder="123 Luxury Avenue"
                       required
                     />
                   </div>
 
+                  {/* City & State */}
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="block text-sm font-semibold text-text-primary mb-2 font-body">
                         City
                       </label>
                       <Input
@@ -142,8 +158,8 @@ export default function CheckoutPage() {
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        State
+                      <label className="block text-sm font-semibold text-text-primary mb-2 font-body">
+                        State/Province
                       </label>
                       <Input
                         type="text"
@@ -156,10 +172,11 @@ export default function CheckoutPage() {
                     </div>
                   </div>
 
+                  {/* ZIP & Country */}
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        ZIP Code
+                      <label className="block text-sm font-semibold text-text-primary mb-2 font-body">
+                        ZIP/Postal Code
                       </label>
                       <Input
                         type="text"
@@ -171,7 +188,7 @@ export default function CheckoutPage() {
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="block text-sm font-semibold text-text-primary mb-2 font-body">
                         Country
                       </label>
                       <Input
@@ -185,20 +202,24 @@ export default function CheckoutPage() {
                     </div>
                   </div>
 
-                  <div className="mt-6 pt-6 border-t border-gray-200">
-                    <div className="bg-blue-50 rounded-lg p-4 mb-6">
-                      <p className="text-sm text-gray-700">
-                        <strong>Payment:</strong> This is a demo. No actual payment will be processed.
+                  {/* Security Note */}
+                  <div className="mt-8 pt-6 border-t border-border">
+                    <div className="bg-primary/5 border border-primary/20 rounded-lg p-4 mb-6 flex items-start gap-3">
+                      <Lock size={18} className="text-primary flex-shrink-0 mt-0.5" />
+                      <p className="text-sm text-text-primary font-body">
+                        <strong>Demo Mode:</strong> This is a secure demo environment. No real payment will be processed.
                       </p>
                     </div>
 
                     <Button
                       type="submit"
                       variant="primary"
+                      size="lg"
                       className="w-full"
                       disabled={loading}
+                      isLoading={loading}
                     >
-                      {loading ? "Processing..." : "Place Order"}
+                      {loading ? 'Processing Order...' : 'Place Order'}
                     </Button>
                   </div>
                 </form>
@@ -206,44 +227,75 @@ export default function CheckoutPage() {
             </Card>
           </div>
 
-          {/* Order Summary */}
-          <div>
-            <Card>
-              <CardHeader>
-                <CardTitle>Order Summary</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  {cart.items.map((item) => (
-                    <div key={item.productId} className="flex justify-between text-sm">
-                      <span>Product {item.productId}</span>
-                      <span className="font-semibold">
-                        {formatPrice(item.price * item.quantity)}
+          {/* Order Summary - Right Column (Sticky) */}
+          <div className="lg:col-span-1">
+            <div className="sticky top-24">
+              <Card>
+                <CardHeader className="border-b border-border">
+                  <CardTitle className="font-display">Order Summary</CardTitle>
+                </CardHeader>
+                <CardContent className="pt-6">
+                  {/* Items */}
+                  <div className="space-y-3 mb-6">
+                    {cart.items.map((item) => (
+                      <div
+                        key={item.productId}
+                        className="flex justify-between items-start pb-3 border-b border-border/50"
+                      >
+                        <div>
+                          <p className="text-sm font-body text-text-primary">
+                            Item {item.productId}
+                          </p>
+                          <p className="text-xs text-text-secondary font-body">
+                            Qty: {item.quantity}
+                          </p>
+                        </div>
+                        <span className="font-mono font-semibold text-text-primary">
+                          {formatPrice(item.price * item.quantity)}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Totals */}
+                  <div className="space-y-3 border-t border-border pt-6">
+                    <div className="flex justify-between text-sm font-body">
+                      <span className="text-text-secondary">Subtotal</span>
+                      <span className="text-text-primary">
+                        {formatPrice(cart.total)}
                       </span>
                     </div>
-                  ))}
-                </div>
+                    <div className="flex justify-between text-sm font-body">
+                      <span className="text-text-secondary">Tax (8%)</span>
+                      <span className="text-text-primary">
+                        {formatPrice(cart.total * 0.08)}
+                      </span>
+                    </div>
+                    <div className="flex justify-between text-sm font-body">
+                      <span className="text-text-secondary">Shipping</span>
+                      <span className="text-success font-semibold">Free</span>
+                    </div>
 
-                <div className="border-t border-gray-200 pt-4 space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span>Subtotal</span>
-                    <span>{formatPrice(cart.total)}</span>
+                    {/* Final Total */}
+                    <div className="border-t border-border pt-3 mt-3 flex justify-between">
+                      <span className="font-display font-semibold text-text-primary">
+                        Total
+                      </span>
+                      <span className="font-mono font-bold text-lg text-primary">
+                        {formatPrice(total)}
+                      </span>
+                    </div>
                   </div>
-                  <div className="flex justify-between text-sm">
-                    <span>Tax (8%)</span>
-                    <span>{formatPrice(cart.total * 0.08)}</span>
+
+                  {/* Trust Badges */}
+                  <div className="mt-6 pt-6 border-t border-border space-y-2 text-xs text-text-secondary font-body">
+                    <p>✓ Secure checkout</p>
+                    <p>✓ SSL encrypted</p>
+                    <p>✓ Free returns within 30 days</p>
                   </div>
-                  <div className="flex justify-between text-sm text-gray-600">
-                    <span>Shipping</span>
-                    <span>Free</span>
-                  </div>
-                  <div className="border-t border-gray-200 pt-2 flex justify-between font-bold">
-                    <span>Total</span>
-                    <span>{formatPrice(total)}</span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+            </div>
           </div>
         </div>
       </div>

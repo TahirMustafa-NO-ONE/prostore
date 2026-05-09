@@ -1,12 +1,18 @@
-"use client";
+'use client';
 
-import React from "react";
-import Link from "next/link";
-import { useCart } from "@/store/cart";
-import { useAuth } from "@/store/auth";
-import { Button } from "@/components/ui/Button";
-import { ShoppingCart, LogOut, Menu, Home, Package, User } from "lucide-react";
-import { useState } from "react";
+import React, { useState } from 'react';
+import Link from 'next/link';
+import { useCart } from '@/store/cart';
+import { useAuth } from '@/store/auth';
+import { Button } from '@/components/ui/Button';
+import {
+  ShoppingCart,
+  LogOut,
+  Menu,
+  X,
+  Search,
+  User,
+} from 'lucide-react';
 
 export function Header() {
   const { cart } = useCart();
@@ -16,71 +22,71 @@ export function Header() {
   const itemCount = cart.items.reduce((sum, item) => sum + item.quantity, 0);
 
   return (
-    <header className="sticky top-0 z-40 w-full border-b border-gray-200 bg-white">
-      <nav className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <header className="sticky top-0 z-40 w-full border-b border-border bg-background/80 backdrop-blur-md">
+      <nav className="container-wide py-4">
         <div className="flex h-16 items-center justify-between">
           {/* Logo */}
-          <Link href="/" className="flex items-center">
-            <span className="text-2xl font-bold text-blue-600">ProStore</span>
+          <Link href="/" className="flex items-center flex-shrink-0">
+            <span className="text-2xl font-display font-bold text-primary tracking-widest">
+              PROSTORE
+            </span>
           </Link>
 
-          {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-6">
-            <Link href="/" className="flex items-center gap-1 text-gray-700 hover:text-black">
-              <Home size={18} />
-              <span>Home</span>
+          {/* Desktop Navigation Center */}
+          <div className="hidden md:flex items-center space-x-8 flex-1 justify-center">
+            <Link
+              href="/products"
+              className="relative text-text-primary font-body font-medium text-sm link-hover"
+            >
+              Products
             </Link>
-            <Link href="/products" className="flex items-center gap-1 text-gray-700 hover:text-black">
-              <Package size={18} />
-              <span>Products</span>
+            <Link
+              href="/products?category=all"
+              className="relative text-text-primary font-body font-medium text-sm link-hover"
+            >
+              Categories
             </Link>
-
-            {user && (
-              <Link href="/dashboard" className="flex items-center gap-1 text-gray-700 hover:text-black">
-                <User size={18} />
-                <span>Dashboard</span>
-              </Link>
-            )}
-
-            {user?.role === "admin" && (
-              <Link href="/admin" className="text-gray-700 hover:text-black font-medium">
-                Admin
-              </Link>
-            )}
           </div>
 
-          {/* Right Side */}
-          <div className="flex items-center space-x-4">
-            <Link href="/cart" className="relative">
-              <Button variant="ghost" size="sm">
-                <ShoppingCart size={20} />
-                {itemCount > 0 && (
-                  <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                    {itemCount}
-                  </span>
-                )}
-              </Button>
+          {/* Right Navigation */}
+          <div className="flex items-center gap-4">
+            {/* Search Icon */}
+            <button className="p-2 hover:bg-surface rounded-md transition-colors">
+              <Search size={20} className="text-text-primary" />
+            </button>
+
+            {/* Cart Icon with Badge */}
+            <Link href="/cart" className="relative p-2 hover:bg-surface rounded-md transition-colors">
+              <ShoppingCart size={20} className="text-text-primary" />
+              {itemCount > 0 && (
+                <span className="absolute -top-1 -right-1 bg-primary text-background text-xs font-semibold rounded-full h-5 w-5 flex items-center justify-center animate-pulse-soft">
+                  {itemCount}
+                </span>
+              )}
             </Link>
 
+            {/* Auth Section */}
             {user ? (
               <>
-                <span className="hidden sm:inline text-sm text-gray-600">
-                  {user.name}
-                </span>
+                <div className="hidden sm:flex items-center gap-2">
+                  <User size={16} className="text-text-secondary" />
+                  <span className="text-sm text-text-secondary font-body">
+                    {user.name}
+                  </span>
+                </div>
                 <Button
-                  variant="outline"
+                  variant="ghost"
                   size="sm"
                   onClick={logout}
-                  className="flex items-center gap-2"
+                  className="hidden sm:inline-flex gap-2"
                 >
                   <LogOut size={16} />
-                  <span>Logout</span>
                 </Button>
               </>
             ) : (
-              <div className="hidden sm:flex space-x-2">
+              <div className="hidden sm:flex gap-2">
                 <Link href="/auth/login">
-                  <Button variant="outline" size="sm">
+                  <Button variant="ghost" size="sm">
                     Login
                   </Button>
                 </Link>
@@ -95,40 +101,72 @@ export function Header() {
             {/* Mobile Menu Button */}
             <button
               onClick={() => setIsOpen(!isOpen)}
-              className="md:hidden p-2 hover:bg-gray-100 rounded-lg"
+              className="md:hidden p-2 hover:bg-surface rounded-md transition-colors"
             >
-              <Menu size={20} />
+              {isOpen ? (
+                <X size={24} className="text-text-primary" />
+              ) : (
+                <Menu size={24} className="text-text-primary" />
+              )}
             </button>
           </div>
         </div>
 
-        {/* Mobile Navigation */}
+        {/* Mobile Navigation Menu */}
         {isOpen && (
-          <div className="md:hidden pb-4 space-y-2">
-            <Link href="/" className="block px-2 py-2 text-gray-700 hover:bg-gray-100 rounded">
-              Home
-            </Link>
-            <Link href="/products" className="block px-2 py-2 text-gray-700 hover:bg-gray-100 rounded">
+          <div className="md:hidden pb-6 space-y-3 animate-slide-in border-t border-border pt-4">
+            <Link
+              href="/products"
+              className="block px-3 py-2 text-text-primary hover:bg-surface rounded-md font-body transition-colors"
+            >
               Products
             </Link>
             {user && (
-              <Link href="/dashboard" className="block px-2 py-2 text-gray-700 hover:bg-gray-100 rounded">
-                Dashboard
-              </Link>
+              <>
+                <Link
+                  href="/dashboard"
+                  className="block px-3 py-2 text-text-primary hover:bg-surface rounded-md font-body transition-colors"
+                >
+                  Dashboard
+                </Link>
+                {user.role === 'admin' && (
+                  <Link
+                    href="/admin"
+                    className="block px-3 py-2 text-text-primary hover:bg-surface rounded-md font-body transition-colors"
+                  >
+                    Admin Panel
+                  </Link>
+                )}
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={logout}
+                  className="w-full justify-start"
+                >
+                  Logout
+                </Button>
+              </>
             )}
             {!user && (
-              <>
-                <Link href="/auth/login" className="block px-2 py-2 text-gray-700 hover:bg-gray-100 rounded">
-                  Login
+              <div className="flex flex-col gap-2 pt-2 border-t border-border">
+                <Link href="/auth/login" className="w-full">
+                  <Button variant="outline" size="md" className="w-full">
+                    Login
+                  </Button>
                 </Link>
-                <Link href="/auth/signup" className="block px-2 py-2 text-gray-700 hover:bg-gray-100 rounded">
-                  Sign Up
+                <Link href="/auth/signup" className="w-full">
+                  <Button variant="primary" size="md" className="w-full">
+                    Sign Up
+                  </Button>
                 </Link>
-              </>
+              </div>
             )}
           </div>
         )}
       </nav>
+
+      {/* Thin gold border line at bottom for elegance */}
+      <div className="h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
     </header>
   );
 }

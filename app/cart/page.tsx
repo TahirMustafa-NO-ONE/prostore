@@ -1,11 +1,12 @@
-"use client";
+'use client';
 
-import React, { useState, useEffect } from "react";
-import Link from "next/link";
-import { Button } from "@/components/ui/Button";
-import { useCart } from "@/store/cart";
-import { CartItem } from "@/components/cart/CartItem";
-import { CartSummary } from "@/components/cart/CartSummary";
+import React, { useState, useEffect } from 'react';
+import Link from 'next/link';
+import { Button } from '@/components/ui/Button';
+import { useCart } from '@/store/cart';
+import { CartItem } from '@/components/cart/CartItem';
+import { CartSummary } from '@/components/cart/CartSummary';
+import { ShoppingBag, ArrowLeft } from 'lucide-react';
 
 export default function CartPage() {
   const { cart } = useCart();
@@ -16,49 +17,77 @@ export default function CartPage() {
   }, []);
 
   if (!mounted) {
-    return <div className="h-64" />;
+    return <div className="min-h-screen bg-background" />;
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Shopping Cart</h1>
-          <p className="text-gray-600 mt-2">
-            {cart.items.length} item{cart.items.length !== 1 ? "s" : ""} in your cart
+    <div className="min-h-screen bg-background py-12 md:py-16">
+      <div className="container-wide">
+        {/* Header */}
+        <div className="mb-12">
+          <h1 className="font-display text-4xl md:text-5xl font-bold text-text-primary mb-2 flex items-center gap-3">
+            <ShoppingBag size={36} className="text-primary" />
+            Shopping Cart
+          </h1>
+          <p className="text-text-secondary font-body">
+            {cart.items.length} item{cart.items.length !== 1 ? 's' : ''} • Free
+            shipping on orders over $50
           </p>
         </div>
 
         {cart.items.length === 0 ? (
-          <div className="bg-white rounded-lg shadow-sm p-12 text-center">
-            <h2 className="text-2xl font-semibold text-gray-900 mb-4">
+          /* Empty Cart State */
+          <div className="flex flex-col items-center justify-center py-16 md:py-24">
+            <div className="mb-6">
+              <ShoppingBag
+                size={64}
+                className="text-text-secondary/40 mx-auto"
+              />
+            </div>
+            <h2 className="font-display text-3xl font-semibold text-text-primary mb-3">
               Your cart is empty
             </h2>
-            <p className="text-gray-600 mb-8">
-              Start shopping to add items to your cart
+            <p className="text-text-secondary font-body mb-8 text-center max-w-md">
+              Discover our curated collection and add items to get started.
             </p>
             <Link href="/products">
-              <Button variant="primary">Continue Shopping</Button>
+              <Button variant="primary" size="lg">
+                Explore Products
+              </Button>
             </Link>
           </div>
         ) : (
+          /* Cart Content */
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Cart Items */}
-            <div className="lg:col-span-2 bg-white rounded-lg shadow-sm p-6">
-              <div className="space-y-4">
+            {/* Cart Items - Left Column */}
+            <div className="lg:col-span-2 space-y-6">
+              {/* Items Container */}
+              <div className="bg-surface border border-border rounded-lg overflow-hidden divide-y divide-border">
                 {cart.items.map((item) => (
                   <CartItem key={item.productId} item={item} />
                 ))}
               </div>
 
-              <Link href="/products" className="mt-8 inline-block">
-                <Button variant="outline">Continue Shopping</Button>
+              {/* Continue Shopping Button */}
+              <Link href="/products">
+                <Button
+                  variant="ghost"
+                  className="group flex items-center gap-2"
+                >
+                  <ArrowLeft
+                    size={18}
+                    className="group-hover:-translate-x-1 transition-transform"
+                  />
+                  Continue Shopping
+                </Button>
               </Link>
             </div>
 
-            {/* Summary */}
-            <div>
-              <CartSummary />
+            {/* Summary - Right Column (Sticky) */}
+            <div className="lg:col-span-1">
+              <div className="sticky top-24">
+                <CartSummary />
+              </div>
             </div>
           </div>
         )}
