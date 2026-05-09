@@ -45,6 +45,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
+      data-scroll-behavior="smooth"
       className={`${playfairDisplay.variable} ${dmSans.variable} ${dmMono.variable}`}
     >
       <body className="flex flex-col min-h-screen bg-background">
